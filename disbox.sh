@@ -27,23 +27,27 @@ then
         if [[ $BOXKIND == "Custom Image?" ]]
         then
             # Asks for a custom image URL.
-            BOXKINDREAL=$(gum input --prompt.foreground 170 --prompt "Insert your image URL: " --placeholder "come on tell me what it is" | tr '[:upper:]' '[:lower:]' | tr -d '[:blank:]')
+            BOXKINDREAL=$(gum input --prompt.foreground 170 --prompt "Insert your image URL: " --placeholder "come on tell me what it is" | tr '[:upper:]' '[:lower:]' | tr -d '[:blank:]') && clear
+                while [[ $BOXKINDREAL == " " ]] || [[ $BOXKINDREAL == "" ]]
+                do
+                    gum style --foreground 160 "$(cowsay -b 'It actually has to link to something..')" && echo && BOXKINDREAL=$(gum input --prompt.foreground 170 --prompt "Insert your image URL: " --placeholder "come on tell me what it is" | tr '[:upper:]' '[:lower:]' | tr -d '[:blank:]') && clear
+                done
         elif [[ $BOXKIND == "Fedora" ]]
         then
             # Fedora is just special.
-            BOXKINDREAL=$(echo "registry.fedoraproject.org/$BOXKIND-toolbox:latest" | tr '[:upper:]' '[:lower:]' | tr -d '[:blank:]')
+            BOXKINDREAL=$(echo "registry.fedoraproject.org/$BOXKIND-toolbox:latest" | tr '[:upper:]' '[:lower:]' | tr -d '[:blank:]') && clear
         else
             # Most of the toolbox images are hosted on quay.io.
-            BOXKINDREAL=$(echo "quay.io/toolbx-images/$BOXKIND-toolbox:latest" | tr '[:upper:]' '[:lower:]' | tr -d '[:blank:]')
+            BOXKINDREAL=$(echo "quay.io/toolbx-images/$BOXKIND-toolbox:latest" | tr '[:upper:]' '[:lower:]' | tr -d '[:blank:]') && clear
         fi
     # Shows all the options that have been chosen by the user.
-    gum style --foreground 190 "$(cowsay -y "Ready to make a new container? Confirm your choices first!")" && gum confirm "$(echo "Container Name: $BOXNAME" && echo "Distro: $BOXKIND" && echo "Image URL: $BOXKINDREAL")"
+    gum style --foreground 190 "$(cowsay -y "Ready to make a new container? Confirm your choices first!")" && gum confirm "$(echo "Container Name: $BOXNAME" && echo "Distro: $BOXKIND" && echo "Image URL: $BOXKINDREAL")" || clear && exit
     clear
     # Runs distrobox-create without interaction. The user has interacted enough.
-    gum style --foreground 190 "$(cowsay -y "Please wait! Your container is being built!") && echo && gum spin --spinner pulse --spinner.foreground="170" --title "Creating container..." -- distrobox-create --image $BOXKINDREAL --name $BOXNAME --yes
+    gum style --foreground 190 "$(cowsay -y "Please wait! Your container is being built!")" && echo && gum spin --spinner pulse --spinner.foreground="170" --title "Creating container..." -- distrobox-create --image $BOXKINDREAL --name $BOXNAME --yes
     clear
     gum style --foreground 190 "$(cowsay -y "Yay, your container is ready! Have fun!")"
     echo
-    gum confirm "Launch the container $BOXNAME? You can launch it later through this script, or using `distrobox enter $BOXNAME`." && distrobox-enter $BOXNAME || clear && exit
+    gum confirm "Launch the container $BOXNAME? You can launch it later through this script, or using distrobox enter $BOXNAME." && distrobox-enter $BOXNAME || clear && exit
 
 fi
